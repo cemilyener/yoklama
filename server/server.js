@@ -1,12 +1,33 @@
-import express from 'express';
-const app =express()
+require('dotenv').config()
 
-app.get('/', (req,res)=>{
-    res.status(200).json({
-        msg:'Hayatta'
+const express = require('express')
+const mongoose = require('mongoose')
+const yoklama = require('./routes/yoklama')
+
+
+// express app
+const app = express()
+
+// middleware
+app.use(express.json())
+
+app.use((req, res, next) => {
+  console.log(req.path, req.method)
+  next()
+})
+
+// routes
+app.use('/api/yoklama', yoklama)
+
+// connect to db
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('connected to database')
+    // listen to port
+    app.listen(process.env.PORT, () => {
+      console.log('listening for requests on port', process.env.PORT)
     })
-})
-app.listen('3000',()=>{
-    console.log('port 3000 den dinleniyor' )
-})
-
+  })
+  .catch((err) => {
+    console.log(err)
+  }) 
